@@ -17,8 +17,13 @@ if [[ ! (-d "$filesdir") ]]; then
 fi
 
 number_of_files=$(find "$filesdir" -type f | wc -l)
-number_of_matches=$(find "$filesdir" -type f -exec grep -Ec "$searchstr" {} \; | paste -sd + | bc -l)
+number_of_matches=0
+
+while IFS= read -r -d '' file
+do
+	count=$(grep -Ec "$searchstr" "$file")
+	number_of_matches=$(( number_of_matches + count ))
+done < <(find "$filesdir" -type f -print0)
 
 echo "The number of files are $number_of_files and the number of matching lines are $number_of_matches"
 exit 0
-
